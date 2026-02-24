@@ -1,0 +1,4 @@
+# Install based on your OS:
+# Windows:  pip install pywinpty
+# Linux/Mac: no extra dependencies needed
+pywinpty; sys_platform == "win32"
