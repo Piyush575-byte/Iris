@@ -10,62 +10,24 @@ Record your terminal sessions. Search through them. Replay, summarize, and expor
 
 ---
 
-## The Problem
+The Problem
+You're debugging at 2 AM. You run 40 commands, finally fix it. Next day your teammate asks: "What did you do?"
+You don't remember. Terminal history shows commands — not output. Screenshots show one moment — not the sequence. The session is gone.
 
-You're debugging a server issue at 2 AM. You run dozens of commands, scroll through walls of output, and finally fix it. The next day, your teammate asks: *"What did you do to fix it?"*
+Three people who feel this every single day
+1. Junior developer — Ravi
+Debugged for 3 hours, fixed it, has no idea which step worked. Sends his senior 3 blurry screenshots and a paragraph from memory. Senior spends another hour reproducing the same problem.
+Current tools fail him: history has no output. Screenshots have no sequence. He's reconstructing a crime scene from memory.
+2. Senior developer — Amit
+Gets 5 Slack messages a day: "bhai error aa raha hai" + one blurry screenshot. Asks follow-up questions. More screenshots. 20 minutes of back-and-forth to understand a 30-second problem.
+Current tools fail him: there is no way to share a complete debugging session asynchronously. He either jumps on a call or plays 20-questions over chat.
+3. Open source maintainer
+Someone opens a GitHub issue: "crashes on startup." Zero context. Maintainer asks for logs. User pastes partial output. Maintainer asks for more. User disappears. Issue sits open for months.
+Current tools fail him: users don't know what to copy. They always copy the wrong thing.
 
-You don't remember. The terminal history is gone. The output is lost.
-
----
-
-### Who is actually suffering — and why they need to switch
-
-**1. The junior developer who can't explain what happened.**
-
-Ravi has been debugging for 3 hours. He ran 40 commands, tried 6 different fixes, and finally got it working — but he has no idea which step actually solved it. When his senior asks for a bug report, Ravi pastes 3 scattered screenshots and writes a paragraph from memory. His senior spends another hour trying to reproduce the same environment. Neither of them has time for this.
-
-*Ravi needs to switch because his current tools — shell history and screenshots — don't capture what actually happened. `history` shows commands but no output. Screenshots show one moment but not the sequence. He is reconstructing a crime scene from memory.*
-
-**2. The senior developer drowning in "it doesn't work on my machine."**
-
-Amit receives 5 Slack messages a day that all look like this: "bhai ye error aa raha hai" followed by a blurry screenshot of half a terminal. He asks follow-up questions. The junior runs more commands. More screenshots. 20 minutes of back-and-forth to understand a 30-second problem.
-
-*Amit needs to switch because no current tool gives him the full sequence in one shot. He either jumps on a call — expensive — or plays 20-questions over Slack — slow. There is no async way to share a complete debugging session right now.*
-
-**3. The open source maintainer who can't reproduce bugs.**
-
-Every week someone opens a GitHub issue that says "crashes on startup" with zero context. The maintainer asks for logs. The user pastes partial output. The maintainer asks for more. The user disappears. The issue sits open for months.
-
-*The maintainer needs to switch because asking users to manually collect and share terminal context is too much friction. Users don't know what to copy. They copy the wrong thing. A single `.trace` file attachment would contain everything — but no standard tool creates one.*
-
----
-
-### Why everything you're already using fails
-
-**Shell history (`history` command):** Shows commands. Zero output. Zero exit codes. Zero timestamps. You know *what* you ran. You have no idea *what happened* when you ran it.
-
-**Screenshots:** Capture one frozen moment. A debugging session is 40 moments in sequence. You would need 40 screenshots to tell the full story — and they still wouldn't be searchable.
-
-**`script` command (Linux built-in):** Dumps everything to a file — but "everything" includes ANSI color codes, terminal resize events, cursor movements, and raw control characters. The output looks like this: `^[[0m^[[01;34m`. Unreadable by humans, unparseable by machines.
-
-**asciinema:** Records a video of your terminal. You can watch it. You cannot search it, grep it, or query it programmatically. Finding one error in a 20-minute recording means scrubbing through video like it's YouTube.
-
-**Pasting into ChatGPT:** You share one error. One moment. ChatGPT has no idea what you tried before, what worked, what didn't. It gives generic advice because it only sees the crash site — not the flight path that led there.
-
-**None of these tools were built for the "share your debugging journey" use case. They were built for other things and developers have been awkwardly force-fitting them ever since.**
-
----
-
-### Why Iris is worth switching to
-
-Iris does one thing none of the above can do: it captures the **complete, structured, searchable sequence** of what happened — not a video, not a raw dump, not a partial history — a clean JSON artifact where every command, every output, every exit code, and every timestamp is a separate queryable field.
-
-The switching cost is exactly one command: `iris record`. Nothing to configure. Nothing to install on the receiving end. The person you send the `.trace` file to only needs Python — which they already have.
-
-The switching benefit is immediate: the next time something breaks and someone asks what happened, you send one file instead of writing three paragraphs from memory.
-
-*That is a switch worth making.*
-
+Why Iris is worth switching to
+One command — iris record. Every command, every output, every exit code, every timestamp — saved into one clean .trace file. Send it like any attachment. The receiver searches it, replays it, understands it — no calls, no screenshots, no memory required.
+Switching cost: one command. Switching benefit: never explain a bug from memory again.
 ---
 
 ## The Solution
