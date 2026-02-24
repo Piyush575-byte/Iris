@@ -13,6 +13,11 @@ from replay import replay_session
 from summary import summarize_session
 from export import export_session
 
+# Signal directory for cross-terminal communication
+SIGNAL_DIR = os.path.join(os.path.expanduser("~"), ".iris")
+STOP_SIGNAL = os.path.join(SIGNAL_DIR, "stop.signal")
+RECORDING_LOCK = os.path.join(SIGNAL_DIR, "recording.lock")
+
 def record_session():
     os_name = platform.system()
     if os_name == "Windows":
@@ -30,11 +35,22 @@ def record_session():
         print(f"Unsupported OS: {os_name}")
         sys.exit(1)
 
+def stop_recording():
+    """Send stop signal to a running iris recording from any terminal."""
+    os.makedirs(SIGNAL_DIR, exist_ok=True)
+    if not os.path.exists(RECORDING_LOCK):
+        print("No active iris recording found.")
+        return
+    with open(STOP_SIGNAL, 'w') as f:
+        f.write("stop")
+    print("Stop signal sent. Recording will save and exit shortly.")
+
 def main():
     parser = argparse.ArgumentParser(description="iris: a terminal session recorder that creates searchable debugging artifacts.")
     subparsers = parser.add_subparsers(dest="action", required=True)
     
     subparsers.add_parser("record", help="Start recording a session")
+    subparsers.add_parser("stop", help="Stop a recording from any terminal")
     
     search_p = subparsers.add_parser("search", help="Search through a recorded session")
     search_p.add_argument("query", help="Text to search for")
@@ -54,6 +70,8 @@ def main():
     
     if args.action == "record":
         record_session()
+    elif args.action == "stop":
+        stop_recording()
     elif args.action == "search":
         search_session(args.file, args.query)
     elif args.action == "replay":
