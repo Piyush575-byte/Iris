@@ -41,7 +41,7 @@ Switching cost: one command. Switching benefit: never explain a bug from memory 
 │  $ docker logs api-server --tail 50             │
 │  $ vim /etc/nginx/nginx.conf                    │
 │  $ systemctl restart nginx                      │
-│  $ exit                                         │
+│  $ stop                                         │
 │                                                 │
 │  ✅ Session saved to 2026-02-24_14-30-00.trace  │
 └─────────────────────────────────────────────────┘
@@ -54,11 +54,13 @@ Switching cost: one command. Switching benefit: never explain a bug from memory 
 | Feature | Description |
 |---|---|
 | 🎬 Record | Capture full terminal sessions with timestamps and command output |
+| ⏹️ Cross-Terminal Stop | Stop recording from any terminal with `iris stop` — no need to switch back |
 | 🔎 Search | Find specific commands or output across recorded sessions |
 | ▶️ Replay | Play back sessions in real-time to review what happened |
 | 📊 Summary | Get session stats — duration, command count, error detection |
 | 📄 Export | Generate clean, shareable text reports from recordings |
 | 🛡️ Auto-Redact | Automatically strips passwords, API keys, and tokens from traces |
+| 💪 Resilient Recording | Won't crash from transient errors — only stops when you say so |
 | 🌐 Cross-Platform | Works on Linux, macOS, and Windows with native integrations |
 | 📦 Zero Dependencies | No external packages needed on Linux/macOS (only pywinpty on Windows) |
 
@@ -127,7 +129,7 @@ pip install -r requirements.txt
 python iris.py --help
 ```
 
-**Optional: Add to PATH**
+**Optional: Add to PATH (run `iris` from any folder)**
 
 Linux / macOS:
 ```bash
@@ -135,7 +137,12 @@ chmod +x iris.py
 sudo ln -s $(pwd)/iris.py /usr/local/bin/iris
 ```
 
-Windows: Add the Iris directory to your system PATH, then use the included `iris.bat` wrapper.
+Windows (PowerShell — run once):
+```powershell
+$p = [Environment]::GetEnvironmentVariable("Path", "User")
+[Environment]::SetEnvironmentVariable("Path", "$p;C:\path\to\Iris", "User")
+```
+Then restart your terminal. The included `iris.bat` wrapper lets you use `iris record`, `iris stop`, etc. from anywhere.
 
 ---
 
@@ -143,13 +150,27 @@ Windows: Add the Iris directory to your system PATH, then use the included `iris
 
 **Record a Session**
 ```bash
-python iris.py record
+iris record
 ```
-This spawns a new shell and records everything. Type `exit` or press `Ctrl+D` to stop. The session is saved as a `.trace` file in the current directory.
+This spawns a new shell and records everything. The session is saved as a `.trace` file in the current directory.
+
+**Stop a Recording**
+
+You have three ways to stop:
+```bash
+# From ANY terminal (even a different one):
+iris stop
+
+# From inside the recording terminal:
+stop
+
+# Or press Ctrl+C inside the recording terminal
+```
+The cross-terminal `iris stop` is useful when you're using VS Code's "Run in Dedicated Terminal" or working across multiple terminal tabs.
 
 **Search a Session**
 ```bash
-python iris.py search "error" examples/demo_session.trace
+iris search "error" examples/demo_session.trace
 ```
 ```
 Searching for 'error' in examples/demo_session.trace...
@@ -163,13 +184,13 @@ Found 1 matching events.
 
 **Replay a Session**
 ```bash
-python iris.py replay examples/demo_session.trace
+iris replay examples/demo_session.trace
 ```
 Plays back each command and its output with a short delay, simulating the original session.
 
 **Get Session Summary**
 ```bash
-python iris.py summary examples/demo_session.trace
+iris summary examples/demo_session.trace
 ```
 ```
 Session: 2026-02-24_14-30-00
@@ -181,7 +202,7 @@ Errors detected: 2
 
 **Export as Text Report**
 ```bash
-python iris.py export examples/demo_session.trace --output report.txt
+iris export examples/demo_session.trace --output report.txt
 ```
 Generates a clean, shareable plain-text report without ANSI codes or sensitive data.
 
