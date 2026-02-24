@@ -51,12 +51,12 @@ python iris.py --help
 
 ## Reporting Bugs
 
-- Use the [Bug Report](https://github.com/PiyushSharma0/Iris/issues/new?template=bug_report.md) issue template
+- Use the [Bug Report](https://github.com/piyush1910dtu-dot/Iris/issues/new?template=bug_report.md) issue template
 - Include your OS, Python version, and steps to reproduce
 
 ## Suggesting Features
 
-- Use the [Feature Request](https://github.com/PiyushSharma0/Iris/issues/new?template=feature_request.md) issue template
+- Use the [Feature Request](https://github.com/piyush1910dtu-dot/Iris/issues/new?template=feature_request.md) issue template
 - Explain the problem you're solving and your proposed approach
 
 ## Code of Conduct

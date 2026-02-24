@@ -103,7 +103,7 @@ Sessions are stored as structured JSON (`.trace` files):
 ## 🚀 Installation
 
 ```bash
-git clone https://github.com/PiyushSharma0/Iris.git
+git clone https://github.com/piyush1910dtu-dot/Iris.git
 cd Iris
 ```
 
