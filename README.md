@@ -162,7 +162,15 @@ iris record
 ```
 Run this in *any* terminal (or multiple terminals) you want to record. Everything you type is sent to the central daemon.
 
-**3. Stop the Recording**
+**3. Run a Single Script/Command**
+
+If you don't want a full interactive shell (or if you hit the "Terminate batch job" error in VS Code when pressing Ctrl+C), use `iris run`:
+```bash
+iris run python my_script.py
+```
+This transparently executes the command, streams the output, and saves it into the daemon's active `.trace` file (or a local file if no daemon is running).
+
+**4. Stop the Recording**
 
 You have three ways to stop:
 ```bash

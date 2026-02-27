@@ -13,6 +13,7 @@ from replay import replay_session
 from summary import summarize_session
 from export import export_session
 from daemon import run_daemon
+from runner import run_single_command
 
 # Signal directory for cross-terminal communication
 SIGNAL_DIR = os.path.join(os.path.expanduser("~"), ".iris")
@@ -61,6 +62,9 @@ def main():
     subparsers.add_parser("record", help="Alias for 'shell' (for backwards compatibility)")
     subparsers.add_parser("stop", help="Stop a multi-terminal recording from any terminal")
     
+    run_p = subparsers.add_parser("run", help="Run a single command/file and record it")
+    run_p.add_argument("cmd", nargs=argparse.REMAINDER, help="The command to run (e.g., 'python script.py')")
+    
     search_p = subparsers.add_parser("search", help="Search through a recorded session")
     search_p.add_argument("query", help="Text to search for")
     search_p.add_argument("file", help="Trace file to search in (.trace)")
@@ -87,6 +91,11 @@ def main():
         record_session()
     elif args.action == "stop":
         stop_recording()
+    elif args.action == "run":
+        if not args.cmd:
+            print("Error: Please provide a command to run. (e.g., 'iris run python script.py')")
+            sys.exit(1)
+        run_single_command(args.cmd)
     elif args.action == "search":
         search_session(args.file, args.query)
     elif args.action == "replay":
