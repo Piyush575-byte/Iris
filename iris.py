@@ -12,11 +12,18 @@ from search import search_session
 from replay import replay_session
 from summary import summarize_session
 from export import export_session
+from daemon import run_daemon
 
 # Signal directory for cross-terminal communication
 SIGNAL_DIR = os.path.join(os.path.expanduser("~"), ".iris")
 STOP_SIGNAL = os.path.join(SIGNAL_DIR, "stop.signal")
 RECORDING_LOCK = os.path.join(SIGNAL_DIR, "recording.lock")
+DAEMON_PORT_FILE = os.path.join(SIGNAL_DIR, "daemon.port")
+
+def start_daemon():
+    """Start the central iris daemon for multi-terminal recording."""
+    run_daemon()
+
 
 def record_session():
     os_name = platform.system()
@@ -49,8 +56,10 @@ def main():
     parser = argparse.ArgumentParser(description="iris: a terminal session recorder that creates searchable debugging artifacts.")
     subparsers = parser.add_subparsers(dest="action", required=True)
     
-    subparsers.add_parser("record", help="Start recording a session")
-    subparsers.add_parser("stop", help="Stop a recording from any terminal")
+    subparsers.add_parser("start", help="Start the background daemon for multi-terminal recording")
+    subparsers.add_parser("shell", help="Attach current terminal to the running daemon session")
+    subparsers.add_parser("record", help="Alias for 'shell' (for backwards compatibility)")
+    subparsers.add_parser("stop", help="Stop a multi-terminal recording from any terminal")
     
     search_p = subparsers.add_parser("search", help="Search through a recorded session")
     search_p.add_argument("query", help="Text to search for")
@@ -68,7 +77,13 @@ def main():
     
     args = parser.parse_args()
     
-    if args.action == "record":
+    if args.action == "start":
+        start_daemon()
+    elif args.action in ("shell", "record"):
+        if not os.path.exists(DAEMON_PORT_FILE):
+            print("No background daemon found.")
+            print("Run 'iris start' first in a terminal, then run 'iris shell' in any terminal you want to record.")
+            sys.exit(1)
         record_session()
     elif args.action == "stop":
         stop_recording()

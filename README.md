@@ -53,7 +53,7 @@ Switching cost: one command. Switching benefit: never explain a bug from memory 
 
 | Feature | Description |
 |---|---|
-| 🎬 Record | Capture full terminal sessions with timestamps and command output |
+| 🎬 Multi-Terminal Record | Capture sessions from multiple windows into ONE trace file using the daemon |
 | ⏹️ Cross-Terminal Stop | Stop recording from any terminal with `iris stop` — no need to switch back |
 | 🔎 Search | Find specific commands or output across recorded sessions |
 | ▶️ Replay | Play back sessions in real-time to review what happened |
@@ -148,25 +148,33 @@ Then restart your terminal. The included `iris.bat` wrapper lets you use `iris r
 
 ## 📖 Usage
 
-**Record a Session**
+**1. Start the Background Daemon**
 ```bash
+iris start
+```
+This runs Iris in server mode, listening for terminals to attach.
+
+**2. Attach Any Terminal**
+```bash
+iris shell
+# Or just
 iris record
 ```
-This spawns a new shell and records everything. The session is saved as a `.trace` file in the current directory.
+Run this in *any* terminal (or multiple terminals) you want to record. Everything you type is sent to the central daemon.
 
-**Stop a Recording**
+**3. Stop the Recording**
 
 You have three ways to stop:
 ```bash
 # From ANY terminal (even a different one):
 iris stop
 
-# From inside the recording terminal:
+# From inside a recording terminal:
 stop
 
-# Or press Ctrl+C inside the recording terminal
+# Or press Ctrl+C inside a recording terminal
 ```
-The cross-terminal `iris stop` is useful when you're using VS Code's "Run in Dedicated Terminal" or working across multiple terminal tabs.
+Stopping the daemon saves a single `.trace` file combining all commands from all attached terminals.
 
 **Search a Session**
 ```bash

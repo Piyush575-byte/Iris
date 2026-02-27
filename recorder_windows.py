@@ -8,6 +8,7 @@ import os
 import re
 from storage import save_session
 from redact import build_event
+from daemon import send_event_to_daemon, DAEMON_PORT_FILE
 
 # Signal directory for cross-terminal communication
 SIGNAL_DIR = os.path.join(os.path.expanduser("~"), ".iris")
@@ -72,11 +73,17 @@ def record():
     trace_file = f"{session_id}.trace"
     events = []
 
-    print(f"Starting iris recording... Saving to {trace_file}")
+    is_daemon_mode = os.path.exists(DAEMON_PORT_FILE)
+
+    if is_daemon_mode:
+        print(f"Attaching terminal to central Iris recording daemon...")
+    else:
+        print(f"Starting standalone iris recording... Saving to {trace_file}")
     print("Type 'stop' or run 'iris stop' from any terminal to stop recording.\n")
 
-    # Create lock file so 'iris stop' knows we're recording
-    _create_lock()
+    # Create lock file so 'iris stop' knows we're recording ONLY if standalone
+    if not is_daemon_mode:
+        _create_lock()
 
     process = winpty.PtyProcess.spawn("cmd.exe")
 
@@ -117,8 +124,8 @@ def record():
     try:
         while not user_stopped:
             try:
-                # Check for stop signal from another terminal (iris stop)
-                if _check_stop_signal():
+                # Check for stop signal ONLY if standalone
+                if not is_daemon_mode and _check_stop_signal():
                     print("\n[iris] Stop signal received from another terminal.")
                     user_stopped = True
                     break
@@ -134,7 +141,7 @@ def record():
                     with lock:
                         current_input += char
 
-                    if char == '\r':
+                    if char in ('\r', '\n'):
                         try:
                             process.write(char)
                         except Exception:
@@ -146,7 +153,13 @@ def record():
                             if cmd_text:
                                 evt = build_event(events, current_input, current_output, duration, datetime.datetime.now().isoformat())
                                 if evt:
-                                    events.append(evt)
+                                    if is_daemon_mode:
+                                        if not send_event_to_daemon(evt):
+                                            print("\n[iris] Daemon connection lost. Stopping recording.")
+                                            user_stopped = True
+                                            break
+                                    else:
+                                        events.append(evt)
                                 if cmd_text.lower() == 'stop':
                                     user_stopped = True
                                     break
@@ -168,7 +181,10 @@ def record():
 
     user_stopped = True
     reader_thread.join(timeout=2)
-    _cleanup_signals()
-
-    save_session(trace_file, session_id, now, datetime.datetime.now(), events)
-    print(f"\n[iris] Session saved to {trace_file}")
+    
+    if not is_daemon_mode:
+        _cleanup_signals()
+        save_session(trace_file, session_id, now, datetime.datetime.now(), events)
+        print(f"\n[iris] Session saved to {trace_file}")
+    else:
+        print(f"\n[iris] Terminal detached from recording daemon.")
