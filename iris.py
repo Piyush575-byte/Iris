@@ -45,7 +45,7 @@ def record_session():
 def stop_recording():
     """Send stop signal to a running iris recording from any terminal."""
     os.makedirs(SIGNAL_DIR, exist_ok=True)
-    if not os.path.exists(RECORDING_LOCK):
+    if not os.path.exists(RECORDING_LOCK) and not os.path.exists(DAEMON_PORT_FILE):
         print("No active iris recording found.")
         return
     with open(STOP_SIGNAL, 'w') as f:
